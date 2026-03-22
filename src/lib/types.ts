@@ -27,6 +27,13 @@ export interface Order {
   paymentMethod: PaymentMethod;
   totalAmount: number;
   items: OrderItem[];
+  location?: string;
+  /** When order entered Preparing phase */
+  preparingAt?: string;
+  /** When order entered Ready phase */
+  readyAt?: string;
+  /** When order was completed */
+  completedAt?: string;
 }
 
 export interface Inventory {

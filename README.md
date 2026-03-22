@@ -2,19 +2,34 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Run and deploy your AI Studio app
+# Jacket-POS
 
-This contains everything you need to run your app locally.
+Tablet-first POS for a jacket potato food booth. Built with React, Vite, Tailwind, Socket.io, Express, and Supabase.
 
-View your app in AI Studio: https://ai.studio/apps/dbe0e629-9a7d-4de7-b90b-538dbe5141d0
+## Project Structure
+
+```
+Jacket-POS/
+├── src/
+│   ├── components/       # UI components (CashierView, KitchenView, ManagerView)
+│   ├── hooks/            # Custom hooks (useSocket)
+│   ├── lib/              # Shared utilities, types, constants
+│   ├── App.tsx           # Root app + role selection
+│   ├── main.tsx
+│   └── index.css
+├── public/               # Static assets served by app (logo, menu images)
+├── assets/               # Source/reference images
+├── supabase/             # Database migrations
+├── server.ts             # Express + Socket.io backend
+└── index.html
+```
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
+**Prerequisites:** Node.js
 
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+1. Install dependencies: `npm install`
+2. Copy `.env.example` to `.env` and add:
+   - `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (for order persistence)
+3. Run the app: `npm run dev`
+4. Open http://localhost:3000

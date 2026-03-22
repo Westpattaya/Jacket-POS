@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
-import { Order, Inventory, OrderStatus, PaymentStatus } from "./types";
+import { Order, Inventory, OrderStatus, PaymentStatus } from "../lib/types";
 
 export function useSocket() {
   const [socket, setSocket] = useState<Socket | null>(null);

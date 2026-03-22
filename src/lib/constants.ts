@@ -5,19 +5,19 @@ export const MENU_ITEMS: MenuItem[] = [
     id: "classic-bacon",
     name: "Classic Bacon",
     price: 99,
-    image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&q=80&w=800",
+    image: "/menu-classic-bacon.png",
   },
   {
     id: "hunter-chicken",
     name: "Hunter Chicken BBQ",
     price: 109,
-    image: "https://images.unsplash.com/photo-1541288097308-7b8e3f58c4c6?auto=format&fit=crop&q=80&w=800",
+    image: "/menu-hunter-chicken.png",
   },
   {
     id: "truffle-mushroom",
     name: "Truffle Mushroom Chicken",
     price: 129,
-    image: "https://images.unsplash.com/photo-1621841957884-1210fe19d66d?auto=format&fit=crop&q=80&w=800",
+    image: "/menu-truffle-mushroom.png",
   },
 ];
 
