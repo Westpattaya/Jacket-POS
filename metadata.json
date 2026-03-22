@@ -1,0 +1,5 @@
+{
+  "name": "JACKET Booth POS",
+  "description": "A tablet-first POS system for JACKET food booth, featuring real-time order tracking, inventory management, and sales analytics.",
+  "requestFramePermissions": []
+}
