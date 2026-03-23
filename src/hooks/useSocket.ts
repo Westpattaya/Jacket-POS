@@ -1,6 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
 import { Inventory, Order, OrderStatus, PaymentStatus } from "../lib/types";
-import { supabase } from "../lib/supabaseClient";
+import { supabase, isSupabaseConfigured } from "../lib/supabaseClient";
+
+function requireSupabase() {
+  if (!supabase) throw new Error("Supabase env not configured");
+  return supabase;
+}
 
 function mapOrderRow(row: any, itemsByOrder: Record<string, any[]>): Order {
   return {
@@ -26,7 +31,8 @@ function mapOrderRow(row: any, itemsByOrder: Record<string, any[]>): Order {
 }
 
 async function loadOrders(): Promise<Order[]> {
-  const { data: ordersData, error: ordersError } = await supabase
+  const client = requireSupabase();
+  const { data: ordersData, error: ordersError } = await client
     .from("orders")
     .select("*")
     .order("order_number", { ascending: true });
@@ -34,7 +40,7 @@ async function loadOrders(): Promise<Order[]> {
   if (ordersError) throw ordersError;
   if (!ordersData?.length) return [];
 
-  const { data: itemsData, error: itemsError } = await supabase
+  const { data: itemsData, error: itemsError } = await client
     .from("order_items")
     .select("*");
 
@@ -49,7 +55,8 @@ async function loadOrders(): Promise<Order[]> {
 }
 
 async function loadInventory(): Promise<Inventory | null> {
-  const { data, error } = await supabase
+  const client = requireSupabase();
+  const { data, error } = await client
     .from("inventory")
     .select("*")
     .limit(1)
@@ -85,6 +92,10 @@ export function useSocket() {
   }, []);
 
   useEffect(() => {
+    if (!isSupabaseConfigured || !supabase) {
+      setIsConnected(false);
+      return;
+    }
     refreshState();
 
     const channel = supabase
@@ -117,7 +128,8 @@ export function useSocket() {
         }
       }
 
-      const { error } = await supabase
+      const client = requireSupabase();
+      const { error } = await client
         .from("inventory")
         .update({
           potato_stock: Math.max(0, nextPotato),
@@ -133,7 +145,8 @@ export function useSocket() {
 
   const createOrder = useCallback(
     async (orderData: Omit<Order, "id" | "orderNumber" | "createdAt" | "status">) => {
-      const { data: insertedOrder, error: orderError } = await supabase
+      const client = requireSupabase();
+      const { data: insertedOrder, error: orderError } = await client
         .from("orders")
         .insert({
           payment_status: orderData.paymentStatus,
@@ -155,7 +168,7 @@ export function useSocket() {
         price: i.price,
       }));
 
-      const { error: itemsError } = await supabase.from("order_items").insert(itemRows);
+      const { error: itemsError } = await client.from("order_items").insert(itemRows);
       if (itemsError) throw itemsError;
 
       if (orderData.paymentStatus === "paid") {
@@ -175,7 +188,8 @@ export function useSocket() {
       if (status === "ready") phasePatch.ready_at = now;
       if (status === "completed") phasePatch.completed_at = now;
 
-      const { error } = await supabase
+      const client = requireSupabase();
+      const { error } = await client
         .from("orders")
         .update({ status, ...phasePatch })
         .eq("id", orderId);
@@ -194,7 +208,8 @@ export function useSocket() {
       const wasPaid = target.paymentStatus === "paid";
       const isNowPaid = paymentStatus === "paid";
 
-      const { error } = await supabase
+      const client = requireSupabase();
+      const { error } = await client
         .from("orders")
         .update({ payment_status: paymentStatus })
         .eq("id", orderId);
@@ -213,13 +228,14 @@ export function useSocket() {
   );
 
   const resetDay = useCallback(async () => {
-    const { error: deleteItemsError } = await supabase
+    const client = requireSupabase();
+    const { error: deleteItemsError } = await client
       .from("order_items")
       .delete()
       .neq("id", "00000000-0000-0000-0000-000000000000");
     if (deleteItemsError) throw deleteItemsError;
 
-    const { error: deleteOrdersError } = await supabase
+    const { error: deleteOrdersError } = await client
       .from("orders")
       .delete()
       .neq("id", "00000000-0000-0000-0000-000000000000");
@@ -238,7 +254,8 @@ export function useSocket() {
         updated_at: new Date().toISOString(),
       };
 
-      const { data: existing, error: existingError } = await supabase
+      const client = requireSupabase();
+      const { data: existing, error: existingError } = await client
         .from("inventory")
         .select("id")
         .limit(1)
@@ -247,10 +264,10 @@ export function useSocket() {
       if (existingError) throw existingError;
 
       if (existing?.id) {
-        const { error } = await supabase.from("inventory").update(payload).eq("id", existing.id);
+        const { error } = await client.from("inventory").update(payload).eq("id", existing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("inventory").insert(payload);
+        const { error } = await client.from("inventory").insert(payload);
         if (error) throw error;
       }
 
