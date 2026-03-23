@@ -96,18 +96,31 @@ export function useSocket() {
       setIsConnected(false);
       return;
     }
-    refreshState();
 
+    // Base connectivity comes from successful DB reads.
+    void refreshState();
+
+    // Realtime subscription (best effort).
     const channel = supabase
       .channel("jacket-pos-live")
       .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, refreshState)
       .on("postgres_changes", { event: "*", schema: "public", table: "order_items" }, refreshState)
       .on("postgres_changes", { event: "*", schema: "public", table: "inventory" }, refreshState)
       .subscribe((status) => {
-        setIsConnected(status === "SUBSCRIBED");
+        if (status === "SUBSCRIBED") {
+          setIsConnected(true);
+        } else if (status === "CHANNEL_ERROR") {
+          console.warn("Supabase realtime channel error; using polling fallback");
+        }
       });
 
+    // Fallback polling so app still works if Realtime is blocked.
+    const pollId = setInterval(() => {
+      void refreshState();
+    }, 4000);
+
     return () => {
+      clearInterval(pollId);
       void supabase.removeChannel(channel);
     };
   }, [refreshState]);
