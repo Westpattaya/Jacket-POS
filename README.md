@@ -33,3 +33,15 @@ Jacket-POS/
    - `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (for order persistence)
 3. Run the app: `npm run dev`
 4. Open http://localhost:3000
+
+## Deploy On Vercel (No Socket Server)
+
+This app now runs directly from Supabase in the frontend, so you can deploy only to Vercel.
+
+1. In Vercel, set environment variables:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+2. Redeploy the project.
+3. Open the app on iPad and it should show **Connected** once Supabase loads.
+
+Note: `SUPABASE_SERVICE_ROLE_KEY` is backend-only and should never be exposed in Vercel frontend env vars.
