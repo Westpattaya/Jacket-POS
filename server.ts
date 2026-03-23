@@ -290,13 +290,18 @@ async function startServer() {
 
   const app = express();
   const httpServer = createServer(app);
+  const allowedOrigins = (process.env.CORS_ORIGIN || "*")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+
   const io = new Server(httpServer, {
     cors: {
-      origin: "*",
+      origin: allowedOrigins.length ? allowedOrigins : "*",
     },
   });
 
-  const PORT = 3000;
+  const PORT = parseInt(process.env.PORT || "3000", 10);
 
   app.use(express.json());
 

@@ -8,8 +8,11 @@ export function useSocket() {
   const [inventory, setInventory] = useState<Inventory | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
+  const socketUrl = import.meta.env.VITE_SOCKET_URL || undefined;
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || socketUrl || "";
+
   useEffect(() => {
-    const newSocket = io();
+    const newSocket = socketUrl ? io(socketUrl) : io();
     setSocket(newSocket);
 
     newSocket.on("connect", () => setIsConnected(true));
@@ -40,7 +43,7 @@ export function useSocket() {
     return () => {
       newSocket.close();
     };
-  }, []);
+  }, [socketUrl]);
 
   const createOrder = useCallback(
     (orderData: Omit<Order, "id" | "orderNumber" | "createdAt" | "status">) => {
@@ -69,14 +72,14 @@ export function useSocket() {
 
   const setupInventory = useCallback(
     async (data: { potatoStock: number; flavorStocks: Record<string, number> }) => {
-      const response = await fetch("/api/inventory/setup", {
+      const response = await fetch(`${apiBaseUrl}/api/inventory/setup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
       return response.json();
     },
-    []
+    [apiBaseUrl]
   );
 
   return {
