@@ -159,9 +159,14 @@ export function useSocket() {
   const createOrder = useCallback(
     async (orderData: Omit<Order, "id" | "orderNumber" | "createdAt" | "status">) => {
       const client = requireSupabase();
+      const nextOrderNumber = orders.length > 0
+        ? Math.max(...orders.map((o) => o.orderNumber)) + 1
+        : 1;
+
       const { data: insertedOrder, error: orderError } = await client
         .from("orders")
         .insert({
+          order_number: nextOrderNumber,
           payment_status: orderData.paymentStatus,
           payment_method: orderData.paymentMethod,
           total_amount: orderData.totalAmount,
@@ -190,7 +195,7 @@ export function useSocket() {
 
       await refreshState();
     },
-    [adjustInventoryByOrderItems, refreshState]
+    [orders, adjustInventoryByOrderItems, refreshState]
   );
 
   const updateOrderStatus = useCallback(
